@@ -1,0 +1,93 @@
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
+// const request = require("request");
+const https = require("https");
+const mailchimp = require("@mailchimp/mailchimp_marketing");
+const { json } = require("body-parser");
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static("public"));
+
+mailchimp.setConfig({
+  apiKey: "276b7f6e393b82e2426e0f4424e5d6a3-us10",
+  server: "us10",
+});
+
+// async function run() {
+//   const response = await mailchimp.ping.get();
+//   console.log(response);
+// }
+
+// const run = async () => {
+//   const response = await mailchimp.lists.getAllLists();
+//   console.log(response);
+// };
+
+// const run = async () => {
+//   const response = await mailchimp.lists.getListMember(
+//     "910e5c8539",
+//     "gio@gmail.oom"
+//   );
+//   console.log(response);
+// };
+
+app.get("/", function (req, res) {
+  res.sendFile(__dirname + "/signup.html");
+});
+
+app.post("/", function (req, res) {
+  const firstname = req.body.fName;
+  const lastname = req.body.lName;
+  const email = req.body.email;
+
+  const data = {
+    members: [
+      {
+        email_address: email,
+        status: "subscribed",
+        merge_fields: {
+          FNAME: firstname,
+          LNAME: lastname,
+        },
+      },
+    ],
+  };
+
+  const run = async () => {
+    const response = await mailchimp.lists.addListMember("910e5c8539", {
+      email_address: email,
+      merge_fields: {
+        FNAME: firstname,
+        LNAME: lastname,
+      },
+      status: "subscribed",
+    });
+    console.log(response);
+  };
+
+  run();
+  // const jsonData = JSON.stringify(data);
+
+  // const url =
+  //   "https://us10.api.mailchimp.com/3.0/lists/276b7f6e393b82e2426e0f4424e5d6a3-us10";
+  // const option = {
+  //   method: "POST",
+  //   auth: "giorgi:276b7f6e393b82e2426e0f4424e5d6a3-us10",
+  // };
+
+  // const request = https.request(url, option, function (response) {
+  //   response.on("data", function (data) {
+  //     console.log("CONSOLE LOG  1 " + JSON.parse(data));
+  //   });
+  // });
+  // // console.log("CONSOLE LOG   " + request);
+  // request.write(jsonData);
+  // request.end();
+});
+
+app.listen(1000);
+
+// // // 6f1fe31079fb9255378f6d05af846b07-us10
+// // // 910e5c8539
