@@ -91,3 +91,44 @@ app.listen(1000);
 
 // // // 6f1fe31079fb9255378f6d05af846b07-us10
 // // // 910e5c8539
+
+
+(var a , var b) ->   return a + b;
+
+
+ const request = https.request(url, option, function(response) {
+    response.on("data", function (data) {
+      console.log("CONSOLE LOG  1 " + JSON.parse(data));
+    });
+  });
+
+  const req = https.request(options, (res) => {
+    console.log("statusCode:", res.statusCode);
+    console.log("headers:", res.headers);
+
+    res.on("data", (d) => {
+      process.stdout.write(d);
+    });
+  });
+inputdata = {
+  new_members: [],
+  updated_members: [],
+  errors: [
+    {
+      email_address: 'yy@gmail.com',
+      error: 'yy@gmail.com is already a list member, do you want to update? please provide update_existing:true in the request body',
+      error_code: 'ERROR_CONTACT_EXISTS'
+    },
+    {
+      email_address: 'yy@gmail.com',
+      error: 'somethion please provide update_existing:true in the request body',
+      error_code: 'ERROR_CONTACT_EXISTS'
+    }
+  ],
+  total_created: 0,
+  total_updated: 0,
+  error_count: 1,
+
+  }
+  inputData.error[0].error_code
+  inputData.total_created

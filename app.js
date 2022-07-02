@@ -2,17 +2,8 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const https = require("https");
-const mailchimp = require("@mailchimp/mailchimp_marketing");
-const { json } = require("body-parser");
-const { response } = require("express");
-
-mailchimp.setConfig({
-  apiKey: "276b7f6e393b82e2426e0f4424e5d6a3-us10",
-  server: "us10",
-});
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 app.use(express.static("public"));
 
 app.get("/", function (req, res) {
@@ -24,31 +15,43 @@ app.post("/", function (req, res) {
   const lastname = req.body.lName;
   const email = req.body.email;
 
-  const run = async () => {
-    const response = await mailchimp.lists.addListMember("910e5c8539", {
-      email_address: email,
-      merge_fields: {
-        FNAME: firstname,
-        LNAME: lastname,
+  const inputData = {
+    members: [
+      {
+        email_address: email,
+        status: "subscribed",
+        merge_fields: {
+          FNAME: firstname,
+          LNAME: lastname,
+        },
       },
-      status: "subscribed",
-    });
+    ],
   };
 
-  run();
-  console.log(res);
-  // var jsondata = JSON.stringify(res);
-  // console.log(jsondata);
-  if (res.statusCode === 200) {
-    console.log("im here");
-    res.sendFile(__dirname + "/success_page.html");
-  } else {
-    res.sendFile(__dirname + "/faliure_page.html");
-  }
-});
+  const jsonData = JSON.stringify(inputData);
 
-app.post("/failure", function (req, res) {
-  res.redirect("/");
-});
+  const url = "https://us10.api.mailchimp.com/3.0/lists/910e5c8539";
+  const option = {
+    method: "POST",
+    auth: "giorgi:6fd7cece6158d4df92e22774aec7efbd-us10",
+  };
 
+  const request = https.request(url, option, function (response) {
+    response.on("data", function (inputData) {
+      var infoData = JSON.parse(inputData);
+      if (infoData.error_count === 1) {
+        res.sendFile(__dirname + "/faliure.html");
+        console.log(infoData.errors[0]);
+      } else {
+        res.sendFile(__dirname + "/success.html");
+      }
+    });
+  });
+
+  request.write(jsonData);
+  request.end();
+});
 app.listen(1000);
+
+//next update: add emali to succes.html with render
+// add info for faliure.
