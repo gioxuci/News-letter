@@ -2,12 +2,14 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const https = require("https");
+const { info } = require("console");
 
+app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.get("/", function (req, res) {
-  res.sendFile(__dirname + "/signup.html");
+  res.sendFile(__dirname + "/main.html");
 });
 
 app.post("/", function (req, res) {
@@ -39,11 +41,15 @@ app.post("/", function (req, res) {
   const request = https.request(url, option, function (response) {
     response.on("data", function (inputData) {
       var infoData = JSON.parse(inputData);
+
       if (infoData.error_count === 1) {
-        res.sendFile(__dirname + "/faliure.html");
-        console.log(infoData.errors[0]);
+        res.render("faliure", {
+          errorEjs: infoData.errors[0].error,
+        });
       } else {
-        res.sendFile(__dirname + "/success.html");
+        res.render("success", {
+          emailEjs: infoData.new_members[0].email_address,
+        });
       }
     });
   });
@@ -52,6 +58,3 @@ app.post("/", function (req, res) {
   request.end();
 });
 app.listen(1000);
-
-//next update: add emali to succes.html with render
-// add info for faliure.
